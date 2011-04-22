@@ -1,0 +1,26 @@
+
+<a href="https://graph.renren.com/oauth/authorize?response_type=code&client_id=84be21242e2b487eb6dc3288b4316d3e&redirect_uri=http://localhost:8080/friend/">登录</a>
+<a href="https://graph.renren.com/oauth/token?code=<%= code%>&grant_type=authorization_code&client_id=84be21242e2b487eb6dc3288b4316d3e&client_secret=<%= secret%>&redirect_uri=http://localhost:8080/friend/">登录</a>
+<a href="http://localhost:8080/">back</a>
+<form action="http://api.renren.com/restserver.do" method="POST" >
+	<input type="text" name="api_key" value="<%= api_key%>" />
+	<input type="text" name="call_id" value="<%= call_id%>" />
+	<input type="text" name="format" value="JSON" />
+	<input type="text" name="method" value="friends.getFriends" />
+	<input type="text" name="session_key" value="<%= session_key%>" />
+	<input type="text" name="v" value="1.0" />
+	<input type="text" name="sig" value="<%= sig%>" />
+	<input type="submit" value="submit" />
+</form>
+提交到localhost
+<form action="http://localhost:8088/" method="POST" >
+	<input type="text" name="api_key" value="<%= api_key%>" />
+	<input type="text" name="call_id" value="<%= call_id%>" />
+	<input type="text" name="format" value="JSON" />
+	<input type="text" name="method" value="friends.getFriends" />
+	<input type="text" name="session_key" value="<%= session_key%>" />
+	<input type="text" name="v" value="1.0" />
+	<input type="text" name="sig" value="<%= sig%>" />
+	<input type="submit" value="submit" />
+</form>
+

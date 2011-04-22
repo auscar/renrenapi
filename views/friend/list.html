@@ -1,0 +1,18 @@
+
+<a href="https://graph.renren.com/oauth/authorize?response_type=code&client_id=5607a7bac8f34adca3756b771d70883d&redirect_uri=http://localhost:8080/friend/">登录</a>
+
+<form action="http://api.renren.com/restserver.do" method="POST" >
+	<input type="text" name="api_key" value="84be21242e2b487eb6dc3288b4316d3e" />
+	<input type="text" name="call_id" value="1303035433811" />
+	<input type="text" name="format" value="JSON" />
+	<input type="text" name="method" value="friends.getFriends" />
+	<input type="text" name="v" value="1.0" />
+	<input type="text" name="session_key" value="z6AbhpqTkNEbHQnnA4Ie0f5u4uvCPDFq" />
+	<input type="text" name="sig" value="<%= sig %>" />
+	<input type="submit" value="submit" />
+</form>
+
+
+<p>Controller: <b><%= controller %></b></p>
+<p>Action: <b><%= action %></b></p>
+<p><%= description %></p>
