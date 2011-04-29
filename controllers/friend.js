@@ -1,5 +1,6 @@
 var view = require('josi/actionresults').view;
 var api = require('../lib/renrenapi');
+var conf = require( './conf' );
 var RenRenClient = api.RenRenClient;
 var crypt = require('crypto');
 //var json = require('JSON');
@@ -8,24 +9,18 @@ var token;
 
 this.index = function() {
 		console.log('auth code ', this.params.code);
-		//用获得的code 获取token	
-		/*
-		api.getToken( this.params.code, function(strToken){
-			console.log('token----->>>> ',strToken);		
-			//将获得的token保存起来, 以后就可以用了
-			token = strToken;
-			api.test(token);
-			
-		});
-		*/
 
 		var url = 'api.renren.com';
-		var secret = '3a0662a10c174155bc11e48c2503ddc2';
-		var apikey = '84be21242e2b487eb6dc3288b4316d3e';
-		var callbackUrl = 'http://localhost:8080/friend/';
-		var method = 'friends.getFriends';
+		var secret = conf.secret;
+		var apikey = conf.apikey;
+		var callbackUrl = conf.callbackUrl;
 
+		var method = 'friends.getFriends';
 		var client = new RenRenClient(apikey,secret,this.params.code,callbackUrl);
+
+    
+        
+
 		client.ready(function(){
 			console.log('貌似可以开始干活了~');	
 			client.getFriends(function(data){
@@ -314,6 +309,13 @@ this.index = function() {
 	params.title = 'testing';
 	params.code = this.params.code;
 	params.secret = secret;
+    params.callbackUrl = callbackUrl;
+    params.apikey = apikey;
+
+    console.log('secret',secret);
+    console.log('apikey',apikey);
+    console.log('callbackUrl',callbackUrl);
+
 	return view(params);
 };
 
