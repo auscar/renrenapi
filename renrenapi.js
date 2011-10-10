@@ -13,20 +13,21 @@ function $extend (obj,addOns){
 (function(module){
 		var apiKey;
 		var secret;
-		var code;
-		var token;
+		//var code;
+		//var token;
 		var callbackUrl;
 
-		module.RenRenClient = function( _apiKey, _secret, _code, _callbackUrl ){	
+		module.RenRenClient = function( _apiKey, _secret, _callbackUrl ){	
+            this.readyQ = [];
+            //this.code = _code;
+
 			apiKey = _apiKey;
 			secret = _secret;
-			code = _code;	
 			callbackUrl = _callbackUrl;
-			this.init();
+			//this.init();
 		};
 		module.RenRenClient.prototype = {
 			isReady : false,
-			readyQ : [],
 			ready : function(fn){
 				if( !this.isReady ){
 					this.readyQ.push( fn );	
@@ -43,23 +44,19 @@ function $extend (obj,addOns){
 			init : function(){
 				var This = this;
 				//取token
-				this.getToken(code,function(_token){
-					token = _token;	
-					console.log('token is ', token);	
+				this.getToken(this.code,function(_token){
+					This.token = _token;	
 					This.doReady();	
 				});
 			},
 			
 			getToken : function(code,fn){
-				console.log('code',code);
 					var client = new https.request({
 					host : 'graph.renren.com',
 					path : '/oauth/token?code='+ code +'&grant_type=authorization_code&client_id='+ apiKey +'&client_secret='+ secret +'&redirect_uri='+callbackUrl,
 					port : 443,
 					method : 'GET'
 				},function(res){
-					console.log(res.statusCode);
-					console.log('getToken 返回的数据是:');
 					var data = '';
 					res.on( 'data',function(chunck){
 						data += chunck;
@@ -67,8 +64,6 @@ function $extend (obj,addOns){
 					res.on( 'end',function(){
 						if(fn){
 							var obj = JSON.parse(data);
-							console.log('获取token的结果',obj);
-							console.log('');
 							var strToken = obj.access_token;
 							strToken = strToken.substring(strToken.indexOf('|')+1);
 							fn.call(this,strToken);	
@@ -78,8 +73,6 @@ function $extend (obj,addOns){
 				client.end();
 			},
 			accessAPI : function(method,_params,fn){
-                console.log('accessAPI '+method);
-                console.log('status content ',_params.status);
 				var This = this;
 				var params = {};
 				var url = 'api.renren.com';
@@ -94,14 +87,14 @@ function $extend (obj,addOns){
 					//format : params.format || 'JSON',
 					format : 'JSON',
 					method : method,
-					session_key : token,
+					//session_key : this.token,
+					session_key : _params.token,
 					v : '1.0'
 				});
 
 				//按照字典序排一下序
 				var ret = [];
 				for( name in params ){
-                    //console.log('key',name);
 					ret.push(name);	
 				}
 				ret.sort(function(a,b){
@@ -124,18 +117,15 @@ function $extend (obj,addOns){
 
 				str += secret;
 
-                //console.log( 'str',str);
 
 				//hash.update(str);
                 
 				//var hashsum = hash.digest('hex');
 				var hashsum = mdf.md5(str);
 
-                console.log( 'params',params );
 
 				params.sig = hashsum;
-                console.log('sig',hashsum);
-
+                
 				//send request
 				var client = new http.request({
 					host : url,
@@ -143,7 +133,6 @@ function $extend (obj,addOns){
 					port : 80,
 					method : 'POST'
 				},function(res){
-					console.log('renrenapi('+ method +') 返回的数据是:');
 					var datas = '';
 					res.on( 'data',function(chunck){
 						datas += chunck;
@@ -155,13 +144,7 @@ function $extend (obj,addOns){
 					});
 				});
                 client.on('error',function(err){
-                    console.log('oh,出事了'); 
                 });
-
-                //编码一下
-				//for( p in params ){
-				//	params[p] = encodeURIComponent(params[p]);
-				//}
 
                 var qq = '';
                 for( var pp in params ){
@@ -175,13 +158,8 @@ function $extend (obj,addOns){
 				client.setHeader('Content-length',q.length);
 				client.setHeader( 'Content-Type','application/x-www-form-urlencoded' );
 			    	
-                console.log('qq发送的内容是 ',qq);
-                console.log('q发送的内容是 ',q);
-                console.log( 'qq=q ',qq==q );
-                //console.log( 'params',params );
-				//client.end(encodeURIComponent(q),'utf8');
+                
 				client.end(q);
-                console.log(6);
 			},
 			accessAPIWrapper : function(method,params,fn){
 				var This = this;
@@ -209,7 +187,6 @@ function $extend (obj,addOns){
 				this.accessAPIWrapper(method,params,fn);
 			},
 			getFriends : function(params,fn,idOnly){
-                console.log('调用api的getFriends接口');
 				var method = idOnly?'friends.get':'friends.getFriends';
 				this.accessAPIWrapper(method,params,fn);
 			},
@@ -366,12 +343,10 @@ function $extend (obj,addOns){
 this.getToken = function(code,fn){
 		var client = new https.request({
 			host : 'graph.renren.com',
-			path : '/oauth/token?code='+ code +'&grant_type=authorization_code&client_id=84be21242e2b487eb6dc3288b4316d3e&client_secret=3a0662a10c174155bc11e48c2503ddc2&redirect_uri=http://localhost:8080/friend/',
+			path : '/oauth/token?code='+ this.code +'&grant_type=authorization_code&client_id=84be21242e2b487eb6dc3288b4316d3e&client_secret=3a0662a10c174155bc11e48c2503ddc2&redirect_uri=http://localhost:8080/friend/',
 			port : 443,
 			method : 'GET'
 		},function(res){
-			//console.log(res.statusCode);
-			console.log('getToken 返回的数据是:');
 			res.on( 'data',function(chunck){
 				if(fn){
 					var str = chunck.toString();
@@ -383,73 +358,4 @@ this.getToken = function(code,fn){
 			});
 		});
 		client.end();
-
 };
-
-this.test = function(token){
-
-		var url = 'api.renren.com';
-		var secret = '3a0662a10c174155bc11e48c2503ddc2';
-		var apikey = '84be21242e2b487eb6dc3288b4316d3e';
-		var method = 'friends.getFriends';
-
-		var params = {
-			api_key : apikey,
-			call_id : new Date().getTime(),//URL encode
-			format : 'JSON',
-			method : method,
-			session_key : token,
-			v : '1.0'
-		};
-
-		//md5
-		var str = '';
-		var hash = crypt.createHash('MD5');
-		for( p in params ){
-			str +=(p+'='+params[p]);
-		}
-		str += secret;
-		//console.log('这些参数需要被hash');
-
-		hash.update(str);
-		var hashsum = hash.digest('hex');
-		console.log('hash的结果是 ',hashsum);
-		params.sig = hashsum;
-
-		console.log(params);
-		//编码一下
-		for( p in params ){
-			params[p] = encodeURIComponent(params[p]);
-		}
-		//send request
-		var client = new http.request({
-			host : url,
-			path : '/restserver.do',
-			//host : 'localhost',
-			port : 80,
-			method : 'POST'
-		},function(res){
-			console.log(res.statusCode);
-			console.log('renrenapi('+ method +') 返回的数据是:');
-			res.on( 'data',function(chunck){
-				console.log(chunck.toString());	
-			});
-		});
-
-		var q = qstr.stringify(params);
-		client.setHeader('Content-length',q.length);
-		client.setHeader( 'Content-Type','application/x-www-form-urlencoded' );
-		
-		console.log('最后，这些数据要被传输');
-		console.log(q);
-		client.end(q,'utf8');
-		return params;
-};
-
-
-
-
-
-
-
-

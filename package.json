@@ -1,0 +1,6 @@
+{ "name" : "renrenapi"
+, "version": "0.0.1"
+, "devDependencies": {"gently": ">=0.8.0"}
+, "main" : "./renrenapi.js"
+, "scripts" : { "test" : "make test" }
+}
